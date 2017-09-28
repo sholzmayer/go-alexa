@@ -173,13 +173,13 @@ type EchoRequest struct {
 }
 
 type EchoSession struct {
-	New         bool   `json:"new"`
-	SessionID   string `json:"sessionId"`
+	New       bool   `json:"new"`
+	SessionID string `json:"sessionId"`
 	Application struct {
 		ApplicationID string `json:"applicationId"`
 	} `json:"application"`
 	Attributes map[string]interface{} `json:"attributes"`
-	User       struct {
+	User struct {
 		UserID      string `json:"userId"`
 		AccessToken string `json:"accessToken,omitempty"`
 	} `json:"user"`
@@ -194,13 +194,15 @@ type EchoReqBody struct {
 }
 
 type EchoIntent struct {
-	Name  string              `json:"name"`
-	Slots map[string]EchoSlot `json:"slots"`
+	Name               string              `json:"name,omitempty"`
+	Slots              map[string]EchoSlot `json:"slots,omitempty"`
+	ConfirmationStatus string              `json:"confirmationStatus,omitempty"`
 }
 
 type EchoSlot struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name               string `json:"name"`
+	Value              string `json:"value"`
+	ConfirmationStatus string `json:"confirmationStatus,omitempty"`
 }
 
 // Response Types
@@ -208,7 +210,7 @@ type EchoSlot struct {
 type EchoResponse struct {
 	Version           string                 `json:"version"`
 	SessionAttributes map[string]interface{} `json:"sessionAttributes,omitempty"`
-	Response          EchoRespBody           `json:"response"`
+	Response          EchoRespBody           `json:"response,omitempty"`
 }
 
 type EchoRespBody struct {
@@ -216,10 +218,27 @@ type EchoRespBody struct {
 	Card             *EchoRespPayload `json:"card,omitempty"`
 	Reprompt         *EchoReprompt    `json:"reprompt,omitempty"` // Pointer so it's dropped if empty in JSON response.
 	ShouldEndSession bool             `json:"shouldEndSession"`
+	Directives       []EchoDirective  `json:"directives,omitempty"`
 }
 
 type EchoReprompt struct {
 	OutputSpeech EchoRespPayload `json:"outputSpeech,omitempty"`
+}
+
+type DirectiveType string
+
+const (
+	DELEGATE       = "Dialog.Delegate"
+	ELICIT_SLOT    = "Dialog.ElicitSlot"
+	CONFIRM_SLOT   = "Dialog.ConfirmSlot"
+	CONFIRM_INTENT = "Dialog.ConfirmIntent"
+)
+
+type EchoDirective struct {
+	Type          DirectiveType `json:"type,omitempty"`
+	SlotToConfirm string        `json:"slotToConfirm,omitempty"`
+	SlotToElicit  string        `json:"slotToElicit,omitempty"`
+	UpdatedIntent *EchoIntent   `json:"updatedIntent,omitempty"`
 }
 
 type EchoRespImage struct {
